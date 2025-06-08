@@ -8,6 +8,9 @@ from flask_login import LoginManager, UserMixin, login_required, current_user, l
 import pdfkit
 import tempfile
 import requests
+from azure_bot import azure_bot_bp
+from app import db
+from app import User, Lawyer, FilledForm, Post, Comment
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
@@ -18,80 +21,6 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-# ----------------- MODELS -----------------
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    full_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    phone = db.Column(db.String(15), nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-    filled_forms = db.relationship('FilledForm', backref='user', lazy=True)
-
-    def get_id(self):
-        return str(self.id)
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-
-class Lawyer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(50), nullable=False)
-    last_name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    phone = db.Column(db.String(15), nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-    bar_number = db.Column(db.String(100), nullable=False)
-    practice_years = db.Column(db.String(20), nullable=False)
-    specialization = db.Column(db.String(50), nullable=False)
-    address = db.Column(db.String(200), nullable=False)
-    city = db.Column(db.String(50), nullable=False)
-    state = db.Column(db.String(50), nullable=False)
-    pincode = db.Column(db.String(10), nullable=False)
-
-
-class FilledForm(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    form_id = db.Column(db.String(50), nullable=False)
-    form_title = db.Column(db.String(200), nullable=False)
-    form_data = db.Column(db.Text, nullable=False)  # JSON data as text
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    template_name = db.Column(db.String(200), nullable=False)
-
-
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('posts', lazy=True))
-    comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")
-
-
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('comments', lazy=True))
-
-
-# ----------------- ROUTES -----------------
 
 @app.route('/')
 def home():
