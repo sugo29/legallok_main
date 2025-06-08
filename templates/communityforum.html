@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Forum | Legal Lok</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-brown: #5a3921;
+            --secondary-brown: #8b4513;
+            --accent-brown: #d2b48c;
+            --light-brown: #f5f5f5;
+            --text-light: #ffffff;
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .top-nav {
+            background-color: var(--primary-brown);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .logo i {
+            color: var(--accent-brown);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-avatar {
+            background-color: var(--secondary-brown);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logout-btn {
+            background-color: var(--secondary-brown);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: var(--primary-brown);
+        }
+        
+        .content-area {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-brown);
+            color: white;
+            padding: 2rem 0;
+        }
+        
+        .sidebar-item {
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--secondary-brown);
+        }
+        
+        .sidebar-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-item a {
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        
+        .sidebar-item a:hover {
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+        }
+        
+        .sidebar-item.active a {
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+        
+        .page-title {
+            color: var(--primary-brown);
+            margin-bottom: 2rem;
+        }
+        
+        .post-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .post-title {
+            color: var(--primary-brown);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .post-meta {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        
+        .post-content {
+            color: #212529;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            background-color: var(--secondary-brown);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--primary-brown);
+        }
+        
+        .create-post-btn {
+            background-color: var(--primary-brown);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 2rem;
+        }
+        
+        .create-post-btn:hover {
+            background-color: var(--secondary-brown);
+        }
+        
+        .modal-content {
+            border-radius: 10px;
+        }
+        
+        .modal-header {
+            background-color: var(--primary-brown);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+        }
+        
+        .btn-close {
+            color: white;
+        }
+        
+        .form-label {
+            color: var(--primary-brown);
+            font-weight: 500;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent-brown);
+            box-shadow: 0 0 0 0.25rem rgba(210, 180, 140, 0.25);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                top: 70px;
+                bottom: 0;
+                z-index: 1000;
+                transition: left 0.3s;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="top-nav-left">
+            <div class="logo">
+                <i class="fas fa-balance-scale"></i>
+                <span>Legal Lok</span>
+            </div>
+        </div>
+        
+        <div class="top-nav-right">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-name">{{ user.full_name }}</div>
+            </div>
+            <a href="/logout"><button class="logout-btn">Logout</button></a>
+        </div>
+    </nav>
+    
+    <!-- Main Content Area -->
+    <div class="content-area">
+        <!-- Side Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-item">
+                <i class="fas fa-home"></i>
+                <a href="/dashboard">Dashboard</a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-robot"></i>
+                <a href="/chatbot">Legal Chatbot</a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-file-alt"></i>
+                <a href="/form">Forms</a>
+            </div>
+            
+            <div class="sidebar-item active">
+                <i class="fas fa-users"></i>
+                <a href="/community">Community Forum</a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-landmark"></i>
+                <a href="/direct-urls"><span>Legal Institutions</span></a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-gavel"></i>
+                <a href="/filled-forms">Petitions</a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-bell"></i>
+                <a href="#">Notifications</a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-cog"></i>
+                <a href="#">Settings</a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1 class="page-title">Community Forum</h1>
+            <button class="create-post-btn" data-bs-toggle="modal" data-bs-target="#newPostModal">
+                <i class="fas fa-plus"></i> Create New Post
+            </button>
+            <div id="posts-container">
+                <!-- Posts will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- New Post Modal -->
+    <div class="modal fade" id="newPostModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newPostForm">
+                        <div class="mb-3">
+                            <label for="postTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="postTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="postContent" class="form-label">Content</label>
+                            <textarea class="form-control" id="postContent" rows="4" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="action-btn" onclick="createPost()">Post</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Post Detail Modal -->
+    <div class="modal fade" id="postDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="postDetailTitle"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="post-content mb-4">
+                        <p id="postDetailContent" class="mb-3"></p>
+                        <small class="text-muted" id="postDetailMeta"></small>
+                    </div>
+                    <hr>
+                    <h6>Comments</h6>
+                    <div id="comments-container" class="mb-3">
+                        <!-- Comments will be loaded here -->
+                    </div>
+                    <form id="commentForm" class="mt-3">
+                        <div class="mb-3">
+                            <textarea class="form-control" id="commentContent" rows="2" placeholder="Write a comment..." required></textarea>
+                        </div>
+                        <button type="submit" class="action-btn">Post Comment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    let currentPostId = null;
+
+    function loadPosts() {
+        fetch('/api/posts')
+            .then(response => response.json())
+            .then(posts => {
+                const container = document.getElementById('posts-container');
+                container.innerHTML = posts.map(post => `
+                    <div class="post-card">
+                        <div class="post-header">
+                            <h2 class="post-title">${post.title}</h2>
+                            <span class="post-meta">
+                                Posted by ${post.author} on ${new Date(post.created_at).toLocaleDateString()}
+                            </span>
+                        </div>
+                        <div class="post-content">
+                            ${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn" onclick="showPostDetail(${post.id})">
+                                <i class="fas fa-comments"></i> View Discussion
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Error loading posts:', error);
+                document.getElementById('posts-container').innerHTML = `
+                    <div class="alert alert-danger">
+                        Error loading posts. Please try refreshing the page.
+                    </div>
+                `;
+            });
+    }
+
+    function createPost() {
+        const title = document.getElementById('postTitle').value;
+        const content = document.getElementById('postContent').value;
+
+        if (!title.trim() || !content.trim()) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        fetch('/api/posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title, content })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newPostModal'));
+                modal.hide();
+                document.getElementById('newPostForm').reset();
+                loadPosts();
+            }
+        })
+        .catch(error => {
+            console.error('Error creating post:', error);
+            alert('Error creating post. Please try again.');
+        });
+    }
+
+    function showPostDetail(postId) {
+        currentPostId = postId;
+        fetch(`/api/posts/${postId}`)
+            .then(response => response.json())
+            .then(post => {
+                document.getElementById('postDetailTitle').textContent = post.title;
+                document.getElementById('postDetailContent').textContent = post.content;
+                document.getElementById('postDetailMeta').textContent = 
+                    `Posted by ${post.user.full_name} on ${new Date(post.created_at).toLocaleDateString()}`;
+                
+                loadComments(postId);
+                
+                const modal = new bootstrap.Modal(document.getElementById('postDetailModal'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error loading post details:', error);
+                alert('Error loading post details. Please try again.');
+            });
+    }
+
+    function loadComments(postId) {
+        fetch(`/api/posts/${postId}/comments`)
+            .then(response => response.json())
+            .then(comments => {
+                const container = document.getElementById('comments-container');
+                if (comments.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No comments yet. Be the first to comment!</p>';
+                } else {
+                    container.innerHTML = comments.map(comment => `
+                        <div class="post-card">
+                            <div class="post-content">
+                                ${comment.content}
+                            </div>
+                            <small class="text-muted">
+                                ${comment.user.full_name} - ${new Date(comment.created_at).toLocaleDateString()}
+                            </small>
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading comments:', error);
+                document.getElementById('comments-container').innerHTML = `
+                    <div class="alert alert-danger">
+                        Error loading comments. Please try again.
+                    </div>
+                `;
+            });
+    }
+
+    document.getElementById('commentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const content = document.getElementById('commentContent').value;
+        
+        if (!content.trim()) {
+            alert('Please enter a comment');
+            return;
+        }
+        
+        fetch(`/api/posts/${currentPostId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById('commentContent').value = '';
+                loadComments(currentPostId);
+            }
+        })
+        .catch(error => {
+            console.error('Error posting comment:', error);
+            alert('Error posting comment. Please try again.');
+        });
+    });
+
+    // Load posts when the page loads
+    document.addEventListener('DOMContentLoaded', loadPosts);
+    </script>
+</body>
+</html>

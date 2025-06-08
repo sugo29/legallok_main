@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Assistant | Legal Lok</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        /* Base Styles */
+        :root {
+            --primary-color: #5D4037; /* Dark brown */
+            --secondary-color: #8D6E63; /* Medium brown */
+            --accent-color: #D7CCC8; /* Light brown */
+            --dark-color: #3E2723; /* Very dark brown */
+            --light-color: #EFEBE9; /* Very light brown */
+            --text-color: #333;
+            --text-light: #ffffff;
+            --border-color: #BCAAA4;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --success-color: #4CAF50;
+            --warning-color: #FFC107;
+            --danger-color: #F44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            line-height: 1.6;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--dark-color);
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .top-nav-left, .top-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .mobile-menu-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 1.2rem;
+            transition: var(--transition);
+            border: 2px solid var(--accent-color);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0;
+            width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 1001;
+            transform: translateY(10px);
+        }
+
+        .user-profile.active .profile-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-dropdown a, .profile-dropdown button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            text-align: left;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .profile-dropdown a:hover, .profile-dropdown button:hover {
+            background-color: var(--light-color);
+        }
+
+        .profile-dropdown i {
+            width: 20px;
+            text-align: center;
+            color: var(--secondary-color);
+        }
+
+        .logout-btn {
+            color: var(--danger-color);
+        }
+
+        .logout-btn i {
+            color: var(--danger-color);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: var(--primary-color);
+            padding: 1.5rem 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 70px;
+            bottom: 0;
+            left: 0;
+            transition: var(--transition);
+            z-index: 900;
+            overflow-y: auto;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 1.75rem;
+            margin: 0.25rem 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-light);
+            border-radius: 6px;
+        }
+
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .sidebar-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-light);
+            border-left: 4px solid var(--accent-color);
+            font-weight: 500;
+        }
+
+        .sidebar-item i {
+            margin-right: 1.25rem;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            color: var(--accent-color);
+        }
+
+        .sidebar-item a {
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        
+        .sidebar-item a:hover {
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+        }
+        
+        .sidebar-item.active a {
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+        }
+
+        /* Main Content */
+        .content-area {
+            display: flex;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            margin-left: 280px;
+            transition: var(--transition);
+            background-color: #f9f9f9;
+        }
+
+        /* Chatbot Specific Styles */
+        .chatbot-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 140px);
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .chatbot-header {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .chatbot-title {
+            font-size: 1.8rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .chatbot-subtitle {
+            color: var(--accent-color);
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        .chatbot-disclaimer {
+            background-color: rgba(255, 243, 224, 0.8);
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem;
+            margin: 0 1.5rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #5F3D00;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: var(--shadow);
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: #f5f5f5;
+            color: var(--text-color);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+
+        .bot-message .message-time {
+            color: rgba(0, 0, 0, 0.5);
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 0.75rem;
+            background-color: white;
+            padding: 1.25rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.9rem 1.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: inherit;
+            resize: none;
+            max-height: 150px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(141, 110, 99, 0.2);
+        }
+
+        .send-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            background-color: var(--dark-color);
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+            align-self: flex-start;
+        }
+
+        .loading-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .loading-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% { 
+                transform: scale(0);
+            }
+            40% { 
+                transform: scale(1);
+            }
+        }
+
+        /* Suggested Questions */
+        .suggested-questions {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .suggested-question {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 0.6rem 1.25rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .suggested-question:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        /* Language Selector Styles */
+        .language-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        #languageSelect {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--light-color);
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        #translateButton {
+            padding: 0.25rem 0.75rem;
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #translateButton:hover {
+            background-color: var(--primary-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+            .chatbot-container {
+                height: calc(100vh - 120px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 1rem;
+            }
+            .message {
+                max-width: 90%;
+                padding: 0.9rem 1.1rem;
+            }
+            .chat-messages {
+                padding: 1rem;
+            }
+            .chatbot-header {
+                padding: 1.25rem 1rem;
+            }
+            .chatbot-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+            }
+            .chat-input-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            .send-btn {
+                width: 100%;
+                border-radius: 8px;
+                height: auto;
+                padding: 0.75rem;
+            }
+            .suggested-questions {
+                gap: 0.5rem;
+            }
+            .suggested-question {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+            .chatbot-disclaimer {
+                margin: 0 1rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="top-nav-left">
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="/" class="logo">
+                <i class="fas fa-balance-scale"></i>
+                <span data-translatable>Legal Lok</span>
+            </a>
+        </div>
+        
+        <div class="top-nav-right">
+            <div class="language-container">
+                <select id="languageSelect">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी</option>
+                    <option value="bn">বাংলা</option>
+                    <option value="te">తెలుగు</option>
+                    <option value="ta">தமிழ்</option>
+                    <option value="kn">ಕನ್ನಡ</option>
+                    <option value="ml">മലയാളം</option>
+                    <option value="mr">मराठी</option>
+                    <option value="gu">ગુજરાતી</option>
+                    <option value="pa">ਪੰਜਾਬੀ</option>
+                </select>
+                <button id="translateButton">
+                    <i class="fas fa-language"></i>
+                    <span data-translatable>Translate</span>
+                </button>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar" tabindex="0">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-dropdown">
+                    <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+                    <button class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content Area -->
+    <div class="content-area">
+        <!-- Side Navigation -->
+        <div class="sidebar">            <div class="sidebar-item">
+                <i class="fas fa-home"></i>
+                <a href="/dashboard"><span data-translatable>Dashboard</span></a>
+            </div>
+            
+            <div class="sidebar-item active">
+                <i class="fas fa-robot"></i>
+                <a href="/chatbot"><span data-translatable>Legal Chatbot</span></a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-file-alt"></i>
+                <a href="/form"><span data-translatable>Forms</span></a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-users"></i>
+                <a href="/community"><span data-translatable>Community Forum</span></a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-landmark"></i>
+                <a href="/direct-urls"><span>Legal Institutions</span></a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-gavel"></i>
+                <a href="{{ url_for('filled_forms') }}"><span data-translatable>Petitions</span></a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-bell"></i>
+                <a href="#"><span data-translatable>Notifications</span></a>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-cog"></i>
+                <a href="#"><span data-translatable>Settings</span></a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="chatbot-container">                <div class="chatbot-header">
+                    <h1 class="chatbot-title" data-translatable>Legal Assistant</h1>
+                    <p class="chatbot-subtitle" data-translatable>Your AI-powered legal guidance</p>
+                </div>
+                
+                <div class="chatbot-disclaimer">
+                    <strong><i class="fas fa-exclamation-circle"></i> <span data-translatable>Disclaimer:</span></strong> <span data-translatable>This AI assistant provides general legal information, not professional advice. For complex issues, consult a qualified lawyer.</span>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Initial welcome message -->                    <div class="message bot-message">
+                        <div class="message-content">
+                            <strong data-translatable>Hello! I'm your Legal Lok assistant.</strong><br><br>
+                            <span data-translatable>I can help you with legal information about:</span>
+                            <ul style="margin-top: 8px; margin-left: 20px;">
+                                <li data-translatable>Property and real estate laws</li>
+                                <li data-translatable>Family and marriage laws</li>
+                                <li data-translatable>Business and employment regulations</li>
+                                <li data-translatable>Criminal and civil procedures</li>
+                                <li data-translatable>Consumer rights and more</li>
+                            </ul>
+                            <br>
+                            <span data-translatable>How can I assist you today?</span>
+                        </div>
+                        <div class="message-time">Just now</div>
+                    </div>
+                      <!-- Suggested questions will appear here -->
+                    <div class="suggested-questions" id="suggestedQuestions">
+                        <div class="suggested-question" data-translatable>How to file for divorce in India?</div>
+                        <div class="suggested-question" data-translatable>Documents needed for property registration</div>
+                        <div class="suggested-question" data-translatable>Tenant rights under Indian law</div>
+                        <div class="suggested-question" data-translatable>How to draft a legal will?</div>
+                    </div>
+                </div>
+                  <div class="chat-input-container">
+                    <textarea class="chat-input" id="userInput" placeholder="Type your legal question here..." rows="1" data-translatable-placeholder="Type your legal question here..."></textarea>
+                    <button class="send-btn" id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/bhashini-translator.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bhashiniTranslator = new BhashiniTranslator();
+            document.getElementById('translateButton').addEventListener('click', () => {
+                bhashiniTranslator.translatePage();
+            });
+        });
+    </script>
+    <script>
+        // DOM Elements
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const suggestedQuestions = document.getElementById('suggestedQuestions');
+        
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-btn')?.addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            this.classList.toggle('active');
+        });
+        
+        // Profile dropdown toggle
+        document.querySelector('.user-avatar')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.querySelector('.user-profile').classList.toggle('active');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            document.querySelector('.user-profile')?.classList.remove('active');
+        });
+        
+        // Auto-resize textarea
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        // Send message function
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage(message, 'user');
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            // Show loading indicator
+            const loadingId = showLoading();
+            
+            try {
+                // Call the Gemini API endpoint
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+                
+                const data = await response.json();
+                
+                // Remove loading indicator
+                removeLoading(loadingId);
+                
+                if (response.ok) {
+                    // Add bot response to chat
+                    addMessage(data.response, 'bot');
+                } else {
+                    // Handle error
+                    addMessage("I'm having trouble connecting to the legal database. Please try again later.", 'bot');
+                    console.error('Error:', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                removeLoading(loadingId);
+                addMessage("I'm having trouble connecting to the legal database. Please try again later.", 'bot');
+            }
+        }
+        
+        // Add message to chat
+        function addMessage(content, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.innerHTML = `
+                <div class="message-content">${content}</div>
+                <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Hide suggested questions after first user message
+            if (sender === 'user') {
+                suggestedQuestions.style.display = 'none';
+            }
+        }
+        
+        // Show loading indicator
+        function showLoading() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading-dots';
+            loadingDiv.id = 'loading-' + Date.now();
+            loadingDiv.innerHTML = `
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            `;
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return loadingDiv.id;
+        }
+        
+        // Remove loading indicator
+        function removeLoading(id) {
+            const loadingElement = document.getElementById(id);
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+        }
+        
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+        
+        userInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Suggested questions click handler
+        document.querySelectorAll('.suggested-question').forEach(question => {
+            question.addEventListener('click', function() {
+                userInput.value = this.textContent;
+                userInput.focus();
+                userInput.style.height = 'auto';
+                userInput.style.height = (userInput.scrollHeight) + 'px';
+            });
+        });
+    </script>
+</body>
+</html>
