@@ -492,12 +492,18 @@ def lawyer_cases():
     return render_template('lawyer cases.html')
 
 @app.route('/direct_urls')
-def direct_urls():  # Changed from direct-urls to direct_urls
-    return render_template('direct_urls.html')
+@login_required
+def direct_urls():
+    return render_template('direct_urls.html', user=current_user)
 
 @app.route('/lawyer_settings')
 def lawyer_settings():
     return render_template('lawyer settings.html')
+
+@app.route('/documents-converter')
+@login_required
+def documents_converter():
+    return render_template('documents-converter.html', user=current_user)
 
 # Route to handle form submissions
 @app.route('/api/submit-form', methods=['POST'])
@@ -697,7 +703,7 @@ def translate_proxy():
             'Filter': {'hi': 'फ़िल्टर', 'bn': 'ফিল্টার'},
             'Business': {'hi': 'व्यापार', 'bn': 'ব্যবসা'},
             'Employment Contract': {'hi': 'रोजगार अनुबंध', 'bn': 'চাকরির চুক্তি'},
-            'Standard employment contract template for hiring employees': {'hi': 'कर्मचारियों को नियुक्त करने के लिए मानक रोजगार अनुबंध टेम्पलेट', 'bn': 'কর্মচারী নিয়োগের জন্য স্ট্যান্ডার্ড চাকরির চুক্তি টেমপ্লেট'},
+            'Standard employment contract template for hiring employees': {'hi': 'कर्मचारियों को नियुक्त करने के लिए मानक रोजगार अनुबंध टेम्पलेट', 'bn': 'কর্মচারী নিয়োগের জন্য স্ট্যান্ডার্ড চাকরির চুক্তি টেমপ्लেট'},
             'Instructions': {'hi': 'निर्देश', 'bn': 'নির্দেশাবলী'},
             'General Information': {'hi': 'सामान्य जानकारी', 'bn': 'সাধারণ তথ্য'},
             'Employer Name *': {'hi': 'नियोक्ता का नाम *', 'bn': 'নিয়োগকারীর নাম *'},
@@ -752,7 +758,11 @@ def translate_proxy():
             'Medical Release': {'hi': 'चिकित्सा रिलीज', 'bn': 'মেডিকেল রিলিজ'},
             'Personal': {'hi': 'व्यक्तिगत', 'bn': 'ব্যক্তিগত'},
             'Lease Agreement': {'hi': 'पट्टा समझौता', 'bn': 'লিজ চুক্তি'},
-            'Vehicle Sale': {'hi': 'वाहन बिक्री', 'bn': 'যানবাহন বিক্রয়'}
+            'Vehicle Sale': {'hi': 'वाहन बिक्री', 'bn': 'যানবাহন বিক্রয়'},
+            'I\'m having trouble connecting to the legal database. Please try again later': {
+                'hi': 'मैं कानूनी डेटाबेस से कनेक्ट करने में समस्या का सामना कर रहा हूँ। कृपया बाद में पुनः प्रयास करें।',
+                'bn': 'আমি আইনি ডাটাবেসে সংযোগ করতে সমস্যার সম্মুখীন হচ্ছি। অনুগ্রহ করে পরে আবার চেষ্টা করুন।'
+            }
             # ...existing code...
         }
         # --- END EXTENDED MOCK TRANSLATIONS ---

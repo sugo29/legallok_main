@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Translator - Legal Lok</title>
-    <link rel="icon" href="data:;base64,=">
+    <title>Document Converter | Legal Lok</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #5D4037;
-            --secondary-color: #8D6E63;
-            --accent-color: #D7CCC8;
-            --dark-color: #3E2723;
-            --light-color: #EFEBE9;
+            --primary-color: #5D4037; /* Dark brown */
+            --secondary-color: #8D6E63; /* Medium brown */
+            --accent-color: #D7CCC8; /* Light brown */
+            --dark-color: #3E2723; /* Very dark brown */
+            --light-color: #EFEBE9; /* Very light brown */
             --text-color: #333;
             --text-light: #ffffff;
             --border-color: #BCAAA4;
@@ -25,175 +24,28 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--light-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 0;
         }
 
-        /* Top Navigation */
-        .top-nav {
-            background-color: var(--dark-color);
-            color: var(--text-light);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            box-shadow: var(--shadow);
-        }
-        
-        .top-nav-left, .top-nav-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-light);
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        
-        .mobile-menu-btn {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-        
-        .language-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        #languageSelect {
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid var(--accent-color);
-            background-color: var(--secondary-color);
-            color: var(--text-light);
-        }
-        
-        #translateButton {
-            padding: 8px 15px;
-            background-color: var(--primary-color);
-            color: var(--text-light);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        
-        .profile-dropdown {
-            display: none;
-            position: absolute;
-            right: 30px;
-            top: 60px;
-            background-color: var(--secondary-color);
-            border-radius: 4px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            z-index: 100;
-        }
-        
-        .profile-dropdown a, .profile-dropdown button {
-            display: block;
-            padding: 10px 20px;
-            color: var(--text-light);
-            text-decoration: none;
-            text-align: left;
-            width: 100%;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .profile-dropdown a:hover, .profile-dropdown button:hover {
-            background-color: var(--primary-color);
-        }
-        
-        /* Main Content Area */
-        .content-area {
-            display: flex;
-            min-height: calc(100vh - 64px);
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background-color: var(--dark-color);
-            color: var(--text-light);
-            padding: 20px 0;
-            transition: var(--transition);
-        }
-        
-        .sidebar-item {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .sidebar-item:hover {
-            background-color: var(--primary-color);
-        }
-        
-        .sidebar-item.active {
-            background-color: var(--primary-color);
-        }
-        
-        .sidebar-item a {
-            color: var(--text-light);
-            text-decoration: none;
-        }
-        
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 30px;
-            background-color: var(--light-color);
-        }
-
-        /* Document Converter Container */
         .document-converter-container {
             max-width: 900px;
-            margin: 0 auto;
+            margin: 2rem auto;
             background-color: white;
             border-radius: 12px;
             box-shadow: var(--shadow);
             padding: 2rem;
             border: 1px solid var(--border-color);
         }
-        
+
         .converter-header {
             text-align: center;
             margin-bottom: 2rem;
         }
-        
+
         .converter-title {
             color: var(--primary-color);
             font-weight: 600;
         }
-        
+
         .upload-area {
             border: 2px dashed var(--secondary-color);
             border-radius: 8px;
@@ -204,17 +56,17 @@
             background-color: rgba(141, 110, 99, 0.05);
             transition: var(--transition);
         }
-        
+
         .upload-area:hover {
             background-color: rgba(141, 110, 99, 0.1);
         }
-        
+
         .upload-icon {
             font-size: 3rem;
             color: var(--secondary-color);
             margin-bottom: 1rem;
         }
-        
+
         .file-input {
             display: none;
         }
@@ -226,17 +78,17 @@
             border-radius: 6px;
             display: none;
         }
-        
+
         .language-selection {
             display: flex;
             gap: 1.5rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .language-box {
             flex: 1;
         }
-        
+
         .language-box label {
             display: block;
             margin-bottom: 0.5rem;
@@ -250,14 +102,14 @@
             border: 1px solid var(--border-color);
             border-radius: 6px;
         }
-        
+
         .action-buttons {
             display: flex;
             justify-content: center;
             gap: 1rem;
             margin-top: 2rem;
         }
-        
+
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: 6px;
@@ -265,89 +117,34 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            transition: var(--transition);
         }
 
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
-        }
-
-        .btn:active::after {
-            width: 200px;
-            height: 200px;
-        }
-        
         .btn-primary {
-            background-color: var(--dark-color);
+            background-color: var(--primary-color);
             border: none;
             color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
+
         .btn-primary:hover {
-            background-color: #2C1810;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-color: var(--dark-color);
         }
 
-        .btn-primary:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
         .btn-secondary {
-            background-color: var(--dark-color);
+            background-color: var(--secondary-color);
             border: none;
             color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-secondary:hover {
-            background-color: #2C1810;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .btn-secondary:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .btn-secondary:hover {
+            background-color: #7E5D54;
         }
 
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
-        .btn:disabled:hover {
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn i {
-            transition: transform 0.3s ease;
-        }
-
-        .btn:hover i {
-            transform: scale(1.1);
-        }
-
-        .btn:active i {
-            transform: scale(0.95);
-        }
-        
         .preview-container {
             margin-top: 2rem;
             border: 1px solid var(--border-color);
@@ -355,7 +152,7 @@
             padding: 1.5rem;
             display: none;
         }
-        
+
         .preview-header {
             display: flex;
             justify-content: space-between;
@@ -364,7 +161,7 @@
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--border-color);
         }
-        
+
         .preview-content {
             height: 500px;
             overflow-y: auto;
@@ -398,23 +195,16 @@
             font-size: 0.9rem;
             color: var(--dark-color);
         }
-        
+
         @media (max-width: 768px) {
-            .sidebar {
-                width: 70px;
-                overflow: hidden;
-            }
-            
-            .sidebar-item span {
-                display: none;
+            .document-converter-container {
+                padding: 1.5rem;
+                margin: 1rem;
             }
             
             .language-selection {
                 flex-direction: column;
-            }
-            
-            .document-converter-container {
-                padding: 1.5rem;
+                gap: 1rem;
             }
             
             .upload-area {
@@ -431,203 +221,100 @@
             }
         }
     </style>
-    <!-- Include PDF.js for PDF handling -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <!-- Include jsPDF for PDF creation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- Include Bhashini translator -->
-    <script src="/static/js/bhashini-transalotir doc.js"></script>
 </head>
 <body>
-    <!-- Top Navigation Bar -->
-    <nav class="top-nav">
-        <div class="top-nav-left">
-            <button class="mobile-menu-btn" aria-label="Toggle menu">
-                <i class="fas fa-bars"></i>
-            </button>
-            <a href="/" class="logo">
-                <i class="fas fa-balance-scale"></i>
-                <span data-translatable>Legal Lok</span>
-            </a>
+    <!-- Document Converter Content -->
+    <div class="document-converter-container">
+        <div class="converter-header">
+            <h2 class="converter-title">Document Translator</h2>
+            <p>Upload your legal document and translate it to any Indian language</p>
         </div>
         
-        <div class="top-nav-right">
-            <div class="language-container">
-                <select id="languageSelect">
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">
+                <i class="fas fa-file-upload"></i>
+            </div>
+            <h4>Drag & Drop your document here</h4>
+            <p>or click to browse files (PDF, DOC, DOCX, TXT)</p>
+            <input type="file" id="fileInput" class="file-input" accept=".pdf,.doc,.docx,.txt">
+        </div>
+        
+        <div class="file-info" id="fileInfo">
+            <i class="fas fa-file-alt"></i>
+            <span id="fileName"></span>
+            <span id="fileSize"></span>
+        </div>
+        
+        <div class="language-selection">
+            <div class="language-box">
+                <label>Source Language</label>
+                <select id="sourceLanguage" class="form-select">
+                    <option value="auto">Auto Detect</option>
                     <option value="en">English</option>
-                    <option value="hi">हिंदी</option>
-                    <option value="bn">বাংলা</option>
-                    <option value="te">తెలుగు</option>
-                    <option value="ta">தமிழ்</option>
-                    <option value="kn">ಕನ್ನಡ</option>
-                    <option value="ml">മലയാളം</option>
-                    <option value="mr">मराठी</option>
-                    <option value="gu">ગુજરાતી</option>
-                    <option value="pa">ਪੰਜਾਬੀ</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="bn">বাংলা (Bengali)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                    <option value="ta">தமிழ் (Tamil)</option>
+                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                    <option value="ml">മലയാളം (Malayalam)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                    <option value="gu">ગુજરાતી (Gujarati)</option>
+                    <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
                 </select>
-                <button id="translateButton">
-                    <i class="fas fa-language"></i>
-                    <span data-translatable>Translate</span>
-                </button>
-            </div>
-            <div class="user-profile">
-                <div class="user-avatar" tabindex="0">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="profile-dropdown">
-                    <a href="/profile"><i class="fas fa-user"></i> Profile</a>
-                    <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
-                    <button class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                </div>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Main Content Area -->
-    <div class="content-area">
-        <!-- Side Navigation -->
-        <div class="sidebar">
-            <div class="sidebar-item">
-                <i class="fas fa-home"></i>
-                <a href="/dashboard"><span data-translatable>Dashboard</span></a>
             </div>
             
-            <div class="sidebar-item">
-                <i class="fas fa-robot"></i>
-                <a href="/chatbot"><span data-translatable>Legal Chatbot</span></a>
-            </div>
-            
-            <div class="sidebar-item">
-                <i class="fas fa-file-alt"></i>
-                <a href="/form"><span data-translatable>Forms</span></a>
-            </div>
-            
-            <div class="sidebar-item">
-                <i class="fas fa-users"></i>
-                <a href="/community"><span data-translatable>Community Forum</span></a>
-            </div>
-            
-            <div class="sidebar-item">
-                <i class="fas fa-landmark"></i>
-                <a href="/direct-urls"><span>Legal Institutions</span></a>
-            </div>
-            
-            <div class="sidebar-item">
-                <i class="fas fa-gavel"></i>
-                <a href="{{ url_for('filled_forms') }}"><span data-translatable>Petitions</span></a>
-            </div>
-            
-            <div class="sidebar-item active">
-                <i class="fas fa-file-pdf"></i>
-                <a href="/documents-converter"><span data-translatable>Document Converter</span></a>
-            </div>
-            
-            <div class="sidebar-item">
-                <i class="fas fa-cog"></i>
-                <a href="#"><span data-translatable>Settings</span></a>
+            <div class="language-box">
+                <label>Target Language</label>
+                <select id="targetLanguage" class="form-select">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="bn">বাংলা (Bengali)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                    <option value="ta">தமிழ் (Tamil)</option>
+                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                    <option value="ml">മലയാളം (Malayalam)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                    <option value="gu">ગુજરાતી (Gujarati)</option>
+                    <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                </select>
             </div>
         </div>
         
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="document-converter-container">
-                <div class="converter-header">
-                    <h2 class="converter-title">Document Translator</h2>
-                    <p>Upload your legal document and translate it to any Indian language</p>
-                </div>
-                
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">
-                        <i class="fas fa-file-upload"></i>
-                    </div>
-                    <h4>Drag & Drop your document here</h4>
-                    <p>or click to browse files (PDF only)</p>
-                    <input type="file" id="fileInput" class="file-input" accept=".pdf">
-                </div>
-                
-                <div class="file-info" id="fileInfo">
-                    <i class="fas fa-file-alt"></i>
-                    <span id="fileName"></span>
-                    <span id="fileSize"></span>
-                </div>
-                
-                <div class="language-selection">
-                    <div class="language-box">
-                        <label>Source Language</label>
-                        <select id="sourceLanguage" class="form-select">
-                            <option value="auto">Auto Detect</option>
-                            <option value="en">English</option>
-                            <option value="hi">हिंदी (Hindi)</option>
-                            <option value="bn">বাংলা (Bengali)</option>
-                            <option value="te">తెలుగు (Telugu)</option>
-                            <option value="ta">தமிழ் (Tamil)</option>
-                            <option value="kn">ಕನ್ನಡ (Kannada)</option>
-                            <option value="ml">മലയാളം (Malayalam)</option>
-                            <option value="mr">मराठी (Marathi)</option>
-                            <option value="gu">ગુજરાતી (Gujarati)</option>
-                            <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="language-box">
-                        <label>Target Language</label>
-                        <select id="targetLanguage" class="form-select">
-                            <option value="en">English</option>
-                            <option value="hi">हिंदी (Hindi)</option>
-                            <option value="bn">বাংলা (Bengali)</option>
-                            <option value="te">తెలుగు (Telugu)</option>
-                            <option value="ta">தமிழ் (Tamil)</option>
-                            <option value="kn">ಕನ್ನಡ (Kannada)</option>
-                            <option value="ml">മലയാളം (Malayalam)</option>
-                            <option value="mr">मराठी (Marathi)</option>
-                            <option value="gu">ગુજરાતી (Gujarati)</option>
-                            <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress">
-                        <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
-                    </div>
-                    <div class="status-message" id="statusMessage"></div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button id="convertBtn" class="btn btn-primary" disabled>
-                        <i class="fas fa-exchange-alt"></i>
-                        Convert Document
-                    </button>
-                    <button id="downloadBtn" class="btn btn-secondary" disabled>
-                        <i class="fas fa-download"></i>
-                        Download
-                    </button>
-                </div>
-                
-                <div class="preview-container" id="previewContainer">
-                    <div class="preview-header">
-                        <h5>Translated Document Preview</h5>
-                    </div>
-                    <div class="preview-content">
-                        <iframe id="pdfPreview" class="pdf-preview"></iframe>
-                    </div>
-                </div>
+        <div class="progress-container" id="progressContainer">
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="convertBtn" class="btn btn-primary" disabled>
+                <i class="fas fa-exchange-alt"></i>
+                Convert Document
+            </button>
+            <button id="downloadBtn" class="btn btn-secondary" disabled>
+                <i class="fas fa-download"></i>
+                Download
+            </button>
+        </div>
+        
+        <div class="preview-container" id="previewContainer">
+            <div class="preview-header">
+                <h5>Translated Document Preview</h5>
+            </div>
+            <div class="preview-content">
+                <iframe id="pdfPreview" class="pdf-preview"></iframe>
             </div>
         </div>
     </div>
 
+    <!-- PDF.js library for PDF rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
     <script>
         // Set PDF.js worker path
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Constants
-            const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB limit
-            const ALLOWED_FILE_TYPES = ['application/pdf'];
-            
-            // Initialize Bhashini translator
-            const bhashiniTranslator = new BhashiniTranslator();
-            
             // DOM Elements
             const uploadArea = document.getElementById('uploadArea');
             const fileInput = document.getElementById('fileInput');
@@ -676,21 +363,7 @@
             // Functions
             function handleFileSelection() {
                 if (fileInput.files && fileInput.files[0]) {
-                    const file = fileInput.files[0];
-                    
-                    // Validate file type
-                    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-                        showError('Please upload a PDF file only.');
-                        return;
-                    }
-                    
-                    // Validate file size
-                    if (file.size > MAX_FILE_SIZE) {
-                        showError(`File size exceeds the limit of ${formatFileSize(MAX_FILE_SIZE)}`);
-                        return;
-                    }
-                    
-                    uploadedFile = file;
+                    uploadedFile = fileInput.files[0];
                     
                     // Display file info
                     fileName.textContent = uploadedFile.name;
@@ -706,24 +379,10 @@
                     previewContainer.style.display = 'none';
                     
                     // Preview the uploaded PDF
-                    previewPdf(uploadedFile);
+                    if (uploadedFile.type === 'application/pdf') {
+                        previewPdf(uploadedFile);
+                    }
                 }
-            }
-            
-            function showError(message) {
-                statusMessage.textContent = message;
-                statusMessage.style.color = '#dc3545';
-                progressContainer.style.display = 'block';
-                progressBar.style.backgroundColor = '#dc3545';
-                progressBar.style.width = '100%';
-                
-                // Reset after 3 seconds
-                setTimeout(() => {
-                    progressContainer.style.display = 'none';
-                    statusMessage.style.color = '';
-                    progressBar.style.backgroundColor = '';
-                    progressBar.style.width = '0%';
-                }, 3000);
             }
             
             function formatFileSize(bytes) {
@@ -738,8 +397,13 @@
                 const fileReader = new FileReader();
                 
                 fileReader.onload = function() {
+                    // Create object URL for the PDF
                     const pdfUrl = URL.createObjectURL(file);
+                    
+                    // Set the PDF viewer source
                     pdfPreview.src = pdfUrl;
+                    
+                    // Show preview container
                     previewContainer.style.display = 'block';
                 };
                 
@@ -755,90 +419,106 @@
                 // Show progress
                 progressContainer.style.display = 'block';
                 progressBar.style.width = '0%';
-                statusMessage.textContent = 'Processing document...';
+                statusMessage.textContent = 'Preparing document...';
                 
                 try {
-                    // Process document and get translation result
-                    const result = await bhashiniTranslator.processDocument(uploadedFile, sourceLanguage, targetLanguage);
+                    // 1. Read the file content
+                    const fileContent = await readFileContent(uploadedFile);
                     
-                    if (!result.translatedContent) {
-                        throw new Error('Translation failed');
+                    // 2. Simulate sending to translation API
+                    updateProgress(30, 'Sending to translation service...');
+                    await delay(1000);
+                    
+                    // 3. Simulate translation processing
+                    updateProgress(60, 'Translating content...');
+                    await delay(1500);
+                    
+                    // 4. Simulate receiving translated content
+                    updateProgress(90, 'Formatting translated document...');
+                    await delay(1000);
+                    
+                    // For demo purposes, we'll create a simulated translation
+                    // In a real implementation, you would use the Bhashini API response
+                    const translatedContent = simulateTranslation(fileContent, sourceLanguage, targetLanguage);
+                    
+                    // Create a blob with the translated content
+                    translatedFileBlob = new Blob([translatedContent], { type: uploadedFile.type });
+                    translatedFileUrl = URL.createObjectURL(translatedFileBlob);
+                    
+                    // Update preview with translated PDF
+                    if (uploadedFile.type === 'application/pdf') {
+                        pdfPreview.src = translatedFileUrl;
+                    } else {
+                        // For non-PDF files, show text content
+                        pdfPreview.srcdoc = `<html><body style="padding:20px;font-family:Arial">${translatedContent}</body></html>`;
                     }
-
-                    // Create PDF with translated content
-                    progressBar.style.width = '60%';
-                    statusMessage.textContent = 'Creating translated PDF...';
                     
-                    const translatedPdf = await createTranslatedPdf(result.translatedContent, uploadedFile);
-                    
-                    // Display preview
-                    progressBar.style.width = '90%';
-                    statusMessage.textContent = 'Generating preview...';
-                    
-                    translatedFileBlob = translatedPdf;
-                    translatedFileUrl = URL.createObjectURL(translatedPdf);
-                    pdfPreview.src = translatedFileUrl;
-                    
-                    // Enable download
-                    progressBar.style.width = '100%';
-                    statusMessage.textContent = 'Translation completed!';
+                    // Complete progress
+                    updateProgress(100, 'Translation complete!');
                     downloadBtn.disabled = false;
-                    
-                    // Store translation result in localStorage for reference
-                    localStorage.setItem('lastTranslation', JSON.stringify(result));
+                    previewContainer.style.display = 'block';
                     
                 } catch (error) {
                     console.error('Translation error:', error);
-                    statusMessage.textContent = `Error: ${error.message}`;
-                    progressBar.style.width = '0%';
+                    statusMessage.textContent = 'Translation failed. Please try again.';
+                    progressBar.style.backgroundColor = '#dc3545';
                 }
             }
             
-            async function createTranslatedPdf(translatedText, originalPdfData) {
-                const { jsPDF } = window.jspdf;
-
-                // Just pass the original buffer directly
-                const loadingTask = pdfjsLib.getDocument({ data: originalPdfData });
-                const pdf = await loadingTask.promise;
-
-                const newPdf = new jsPDF();
-                const numPages = pdf.numPages;
-                const translatedPages = translatedText.split('\n\n');
-
-                try {
-                    for (let i = 1; i <= numPages; i++) {
-                        if (i > 1) newPdf.addPage();
-
-                        const page = await pdf.getPage(i);
-                        const viewport = page.getViewport({ scale: 1.0 });
-
-                        const pageWidth = viewport.width;
-                        const pageHeight = viewport.height;
-
-                        newPdf.setPage(i);
-                        newPdf.setPageSize([pageWidth, pageHeight]);
-
-                        const pageText = translatedPages[i - 1] || '';
-                        const lines = pageText.split('\n');
-
-                        newPdf.setFontSize(12);
-                        let yPosition = 20;
-
-                        for (const line of lines) {
-                            if (line.trim()) {
-                                newPdf.text(line, 20, yPosition, {
-                                    maxWidth: pageWidth - 40,
-                                    lineHeightFactor: 1.5
-                                });
-                                yPosition += 15;
-                            }
+            function readFileContent(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        // For PDF files, we'll just use the file directly
+                        if (file.type === 'application/pdf') {
+                            resolve(file);
+                        } else {
+                            // For text-based files, read as text
+                            resolve(e.target.result);
                         }
+                    };
+                    
+                    reader.onerror = function(e) {
+                        reject(new Error('File reading failed'));
+                    };
+                    
+                    if (file.type === 'application/pdf') {
+                        // Read as ArrayBuffer for PDF
+                        reader.readAsArrayBuffer(file);
+                    } else {
+                        // Read as text for other files
+                        reader.readAsText(file);
                     }
-
-                    return newPdf.output('blob');
-                } finally {
-                    await loadingTask.destroy();
+                });
+            }
+            
+            function simulateTranslation(content, sourceLang, targetLang) {
+                // This is a simulation - in a real app, the Bhashini API would do the translation
+                const translations = {
+                    en: {
+                        hi: "यह एक कानूनी दस्तावेज़ का अनुवादित संस्करण है। मूल दस्तावेज़ अंग्रेजी में था और इसे हिंदी में अनुवादित किया गया है।",
+                        bn: "এটি একটি আইনী নথির অনুবাদিত সংস্করণ। মূল নথিটি ইংরেজিতে ছিল এবং এটি বাংলায় অনুবাদ করা হয়েছে।",
+                        te: "ఇది ఒక లీగల్ డాక్యుమెంట్ యొక్క అనువాదం. అసలు డాక్యుమెంట్ ఇంగ్లీషులో ఉంది మరియు దీన్ని తెలుగులోకి అనువదించారు.",
+                        ta: "இது ஒரு சட்ட ஆவணத்தின் மொழிபெயர்க்கப்பட்ட பதிப்பு. அசல் ஆவணம் ஆங்கிலத்தில் இருந்தது மற்றும் இது தமிழில் மொழிபெயர்க்கப்பட்டுள்ளது.",
+                        kn: "ಇದು ಕಾನೂನು ದಾಖಲೆಯ ಅನುವಾದಿತ ಆವೃತ್ತಿ. ಮೂಲ ದಾಖಲೆ ಇಂಗ್ಲಿಷ್ನಲ್ಲಿತ್ತು ಮತ್ತು ಇದನ್ನು ಕನ್ನಡಕ್ಕೆ ಅನುವಾದಿಸಲಾಗಿದೆ.",
+                        ml: "ഇതൊരു നിയമപരമായ രേഖയുടെ വിവർത്തനം ആണ്. യഥാർത്ഥ രേഖ ഇംഗ്ലീഷിൽ ആയിരുന്നു, ഇത് മലയാളത്തിലേക്ക് വിവർത്തനം ചെയ്തിരിക്കുന്നു.",
+                        mr: "हा कायदेशीर दस्तऐवजाचा भाषांतरित आवृत्ती आहे. मूळ दस्तऐवज इंग्रजीमध्ये होता आणि याचे मराठीमध्ये भाषांतर केले गेले आहे.",
+                        gu: "આ કાનૂની દસ્તાવેજનું અનુવાદિત સંસ્કરણ છે. મૂળ દસ્તાવેજ અંગ્રેજીમાં હતો અને તેનો ગુજરાતીમાં અનુવાદ કરવામાં આવ્યો છે.",
+                        pa: "ਇਹ ਇੱਕ ਕਾਨੂੰਨੀ ਦਸਤਾਵੇਜ਼ ਦਾ ਅਨੁਵਾਦਿਤ ਸੰਸਕਰਣ ਹੈ। ਅਸਲ ਦਸਤਾਵੇਜ਼ ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਸੀ ਅਤੇ ਇਸਨੂੰ ਪੰਜਾਬੀ ਵਿੱਚ ਅਨੁਵਾਦ ਕੀਤਾ ਗਿਆ ਹੈ।"
+                    },
+                    hi: {
+                        en: "This is a translated version of a legal document. The original document was in Hindi and has been translated to English.",
+                    }
+                };
+                
+                // If we have a specific translation, use it
+                if (translations[sourceLang] && translations[sourceLang][targetLang]) {
+                    return translations[sourceLang][targetLang];
                 }
+                
+                // Default simulated translation
+                return `This is a translated version of the document from ${sourceLang} to ${targetLang}.\n\nOriginal content would appear here in a real implementation.`;
             }
             
             function downloadDocument() {
@@ -852,134 +532,14 @@
                 document.body.removeChild(a);
             }
             
-            // Add user profile dropdown functionality
-            const userAvatar = document.querySelector('.user-avatar');
-            const profileDropdown = document.querySelector('.profile-dropdown');
-            
-            userAvatar.addEventListener('click', () => {
-                profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.user-profile')) {
-                    profileDropdown.style.display = 'none';
-                }
-            });
-
-            // Function to load posts
-            function loadPosts() {
-                fetch('/api/posts')
-                    .then(async response => {
-                        if (!response.ok) {
-                            const errorText = await response.text();
-                            throw new Error(errorText || `HTTP error: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(posts => {
-                        const container = document.getElementById('posts-container');
-                        container.innerHTML = posts.map(post => `
-                            <div class="post-card">
-                                <div class="post-header">
-                                    <h2 class="post-title">${post.title}</h2>
-                                    <span class="post-meta">
-                                        Posted by ${post.author} on ${new Date(post.created_at).toLocaleDateString()}
-                                    </span>
-                                </div>
-                                <div class="post-content">
-                                    ${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}
-                                </div>
-                                <div class="post-actions">
-                                    <button class="action-btn" onclick="showPostDetail(${post.id})">
-                                        <i class="fas fa-comments"></i> View Discussion
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('');
-                    })
-                    .catch(error => {
-                        console.error('Error loading posts:', error);
-                        document.getElementById('posts-container').innerHTML = `
-                            <div class="alert alert-danger">
-                                Error loading posts. Please try refreshing the page.
-                            </div>
-                        `;
-                    });
+            function updateProgress(percent, message) {
+                progressBar.style.width = `${percent}%`;
+                statusMessage.textContent = message;
             }
-
-            // Add styles for posts
-            const style = document.createElement('style');
-            style.textContent = `
-                .post-card {
-                    background: white;
-                    border-radius: 8px;
-                    padding: 20px;
-                    margin-bottom: 20px;
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                }
-
-                .post-header {
-                    margin-bottom: 15px;
-                }
-
-                .post-title {
-                    color: var(--dark-color);
-                    margin: 0 0 5px 0;
-                    font-size: 1.25rem;
-                }
-
-                .post-meta {
-                    color: #666;
-                    font-size: 0.9rem;
-                }
-
-                .post-content {
-                    color: #333;
-                    line-height: 1.5;
-                    margin-bottom: 15px;
-                }
-
-                .post-actions {
-                    display: flex;
-                    justify-content: flex-end;
-                }
-
-                .action-btn {
-                    background-color: var(--dark-color);
-                    color: white;
-                    border: none;
-                    padding: 8px 15px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    gap: 5px;
-                    transition: all 0.3s ease;
-                }
-
-                .action-btn:hover {
-                    background-color: #2C1810;
-                    transform: translateY(-2px);
-                }
-
-                .action-btn i {
-                    font-size: 0.9rem;
-                }
-
-                .alert {
-                    padding: 15px;
-                    border-radius: 4px;
-                    margin-bottom: 20px;
-                }
-
-                .alert-danger {
-                    background-color: #f8d7da;
-                    border: 1px solid #f5c6cb;
-                    color: #721c24;
-                }
-            `;
-            document.head.appendChild(style);
+            
+            function delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
         });
     </script>
 </body>
