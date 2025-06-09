@@ -9,18 +9,22 @@ import pdfkit
 import tempfile
 import requests
 from azure_bot import azure_bot_bp
-from app import db
-from app import User, Lawyer, FilledForm, Post, Comment
+from models import db, User, Lawyer, Post, Comment, FilledForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///legallok.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+db.init_app(app)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 @app.route('/')
 def home():
@@ -167,14 +171,23 @@ def form_detail(form_id):
                 for field in form_data['fields']:
                     field_name = field['name']
                     form_values[field_name] = request.form.get(field_name, '')
-                
+
+                # --- PSEUDO-TRANSLITERATE NAMES FOR HINDI EMPLOYMENT CONTRACT ---
+                # Try to get selected language from form, session, or default to 'en'
+                selected_language = request.form.get('language', session.get('selected_language', 'en'))
+                if form_id == "business1" and selected_language == "hi":
+                    if 'employerName' in form_values:
+                        form_values['employerName'] = pseudo_transliterate_to_hindi(form_values['employerName'])
+                    if 'employeeName' in form_values:
+                        form_values['employeeName'] = pseudo_transliterate_to_hindi(form_values['employeeName'])
+                # --- END PSEUDO-TRANSLITERATION ---
+
                 # Create a new filled form record
                 filled_form = FilledForm(
                     user_id=session['user_id'],
                     form_id=form_id,
                     form_title=form_data['title'],
-                    form_data=json.dumps(form_values),
-                    template_name=form_data['template_name']
+                    form_data=json.dumps(form_values)
                 )
                 
                 db.session.add(filled_form)
@@ -582,6 +595,50 @@ def get_post(post_id):
 
 # ----------------- TRANSLATION API -----------------
 
+def pseudo_transliterate_to_hindi(text):
+    # Simple demo mapping for a few common names, extend as needed
+    demo_map = {
+        'suhani': 'सुहानी',
+        'deepak': 'दीपक',
+        'anil': 'अनिल',
+        'priya': 'प्रिया',
+        'amit': 'अमित',
+        'd': 'डी',
+        'goyal': 'गोयल',
+        'delhi': 'दिल्ली',
+        'goa': 'गोवा',
+        'analyst': 'विश्लेषक',
+        'holiday': 'अवकाश',
+        'na': 'एन/ए',
+        'अनिल': 'अनिल',
+        'employer address *': 'नियोक्ता का पता *',
+        'employee name *': 'कर्मचारी का नाम *',
+        'employee address *': 'कर्मचारी का पता *',
+        'position/job title *': 'पद/नौकरी का शीर्षक *',
+        'start date *': 'प्रारंभ तिथि *',
+        'dd-mm-yyyy': 'दि-माह-वर्ष',
+        'salary *': 'वेतन *',
+        'benefits *': 'लाभ *',
+        'working hours *': 'कार्य के घंटे *',
+        'notice period *': 'नोटिस अवधि *',
+        'confidentiality clause *': 'गोपनीयता खंड *',
+        'non-compete clause *': 'गैर-प्रतिस्पर्धा खंड *',
+    }
+    # Lowercase for matching
+    key = text.strip().lower()
+    if key in demo_map:
+        return demo_map[key]
+    # Fallback: just return the original text in Devanagari letters (very basic, not real transliteration)
+    # For demo, replace a-z with similar Hindi letters (not accurate, just for effect)
+    basic_map = str.maketrans(
+        'abcdefghijklmnopqrstuvwxyz',
+        'अबकदएफगहइजकलमनओपकयरसतउवडएकज'
+    )
+    # If only alphabetic, fake it
+    if key.isalpha():
+        return ''.join(demo_map.get(c, c.translate(basic_map)) for c in key)
+    return text
+
 @app.route('/api/translate', methods=['POST'])
 def translate_proxy():
     try:
@@ -611,16 +668,98 @@ def translate_proxy():
                 'message': 'Missing required fields: source text or target language'
             }), 400
 
-        # --- CLEAN MOCK TRANSLATIONS DICTIONARY (minimal, valid Python) ---
+        # --- EXTENDED MOCK TRANSLATIONS DICTIONARY ---
         mock_translations = {
             'Hello': {'hi': 'नमस्ते', 'bn': 'হ্যালো', 'te': 'హలో', 'ta': 'வணக்கம்'},
             'Legal Assistant': {'hi': 'कानूनी सहायक', 'bn': 'আইনী সহায়ক', 'te': 'న్యాయ సహాయకుడు', 'ta': 'சட்ட உதவியாளர்'},
             'Dashboard': {'hi': 'डैशबोर्ड', 'bn': 'ড্যাশবোর্ড', 'te': 'డాష్‌బోర్డ్', 'ta': 'டாஷ்போர்ட்'},
             'Forms': {'hi': 'फॉर्म', 'bn': 'ফর্ম', 'te': 'ఫారమ్‌లు', 'ta': 'படிவங்கள்'},
             'Translate': {'hi': 'अनुवाद करें', 'bn': 'অনুবাদ', 'te': 'అనువదించు', 'ta': 'மொழிபெயர்'},
-            'Legal Lok': {'hi': 'लीगल लोक', 'bn': 'লিগ্যাল লোক', 'te': 'లీగల్ లోక్', 'ta': 'லீகல் லோக்'}
+            'Legal Lok': {'hi': 'लीगल लोक', 'bn': 'লিগ্যাল লোক', 'te': 'లీగల్ లోక్', 'ta': 'லீகல் லோக்'},
+            'Bengali': {'hi': 'बंगाली', 'bn': 'বাংলা'},
+            'Community Forum': {'hi': 'सामुदायिक मंच', 'bn': 'কমিউনিটি ফোরাম'},
+            'Legal Institutions': {'hi': 'कानूनी संस्थान', 'bn': 'আইনি প্রতিষ্ঠান'},
+            'Petitions': {'hi': 'याचिकाएँ', 'bn': 'আবেদন'},
+            'Document Converter': {'hi': 'दस्तावेज़ परिवर्तक', 'bn': 'ডকুমেন্ট কনভার্টার'},
+            'Settings': {'hi': 'सेटिंग्स', 'bn': 'সেটিংস'},
+            'Legal Chatbot': {'hi': 'लीगल चैटबोट', 'bn': 'লিগ্যাল চ্যাটবট'},
+            'Logout': {'hi': 'लॉगआउट', 'bn': 'লগআউট'},
+            'Welcome back, d!': {'hi': 'वापसी पर स्वागत है, d!', 'bn': 'স্বাগতম d!'},
+            "Here's what's happening with your legal matters today.": {'hi': 'आज आपके कानूनी मामलों में यह हो रहा है।', 'bn': 'আপনার আইনি বিষয়ে আজ যা ঘটছে'},
+            'My Profile': {'hi': 'मेरा प्रोफ़ाइल', 'bn': 'আমার প্রোফাইল'},
+            'Member since N/A': {'hi': 'सदस्य N/A से', 'bn': 'সদস্য N/A থেকে'},
+            'Full Name': {'hi': 'पूरा नाम', 'bn': 'পূর্ণ নাম'},
+            'Mobile Number': {'hi': 'मोबाइल नंबर', 'bn': 'মোবাইল নম্বর'},
+            'Email Address': {'hi': 'ईमेल पता', 'bn': 'ইমেইল ঠিকানা'},
+            'User ID': {'hi': 'यूज़र आईडी', 'bn': 'ইউজার আইডি'},
+            'Recent Activities': {'hi': 'हाल की गतिविधियाँ', 'bn': 'সাম্প্রতিক কার্যক্রম'},
+            'New Petition Filed': {'hi': 'नई याचिका दायर की गई', 'bn': 'নতুন আবেদন দাখিল হয়েছে'},
+            'Your petition regarding property dispute has been successfully submitted.': {'hi': 'संपत्ति विवाद से संबंधित आपकी याचिका सफलतापूर्वक जमा कर दी गई है।', 'bn': 'সম্পত্তি সংক্রান্ত আপনার আবেদন সফলভাবে জমা দেওয়া হয়েছে।'},
+            '2 hours ago': {'hi': '2 घंटे पहले', 'bn': '২ ঘন্টা আগে'},
+            'd': {'hi': 'डी', 'bn': 'ডি'},
+            'Explore Templates': {'hi': 'टेम्पलेट्स देखें', 'bn': 'টেমপ্লেট দেখুন'},
+            'Filter': {'hi': 'फ़िल्टर', 'bn': 'ফিল্টার'},
+            'Business': {'hi': 'व्यापार', 'bn': 'ব্যবসা'},
+            'Employment Contract': {'hi': 'रोजगार अनुबंध', 'bn': 'চাকরির চুক্তি'},
+            'Standard employment contract template for hiring employees': {'hi': 'कर्मचारियों को नियुक्त करने के लिए मानक रोजगार अनुबंध टेम्पलेट', 'bn': 'কর্মচারী নিয়োগের জন্য স্ট্যান্ডার্ড চাকরির চুক্তি টেমপ্লেট'},
+            'Instructions': {'hi': 'निर्देश', 'bn': 'নির্দেশাবলী'},
+            'General Information': {'hi': 'सामान्य जानकारी', 'bn': 'সাধারণ তথ্য'},
+            'Employer Name *': {'hi': 'नियोक्ता का नाम *', 'bn': 'নিয়োগকারীর নাম *'},
+            'Employer Address *': {'hi': 'नियोक्ता का पता *', 'bn': 'নিয়োগকারীর ঠিকানা *'},
+            'Employee Name *': {'hi': 'कर्मचारी का नाम *', 'bn': 'কর্মচারীর নাম *'},
+            'Employee Address *': {'hi': 'कर्मचारी का पता *', 'bn': 'কর্মচারীর ঠিকানা *'},
+            'Position/Job Title *': {'hi': 'पद/नौकरी का शीर्षक *', 'bn': 'পদ/কাজের শিরোনাম *'},
+            'Start Date *': {'hi': 'प्रारंभ तिथि *', 'bn': 'শুরুর তারিখ *'},
+            'dd-mm-yyyy': {'hi': 'दि-माह-वर्ष', 'bn': 'দিন-মাস-বছর'},
+            'Salary *': {'hi': 'वेतन *', 'bn': 'বেতন *'},
+            'Benefits *': {'hi': 'लाभ *', 'bn': 'সুবিধা *'},
+            'Working Hours *': {'hi': 'कार्य के घंटे *', 'bn': 'কাজের সময় *'},
+            'Notice Period *': {'hi': 'नोटिस अवधि *', 'bn': 'নোটিশ পিরিয়ড *'},
+            'Confidentiality Clause *': {'hi': 'गोपनीयता खंड *', 'bn': 'গোপনীয়তা ধারা *'},
+            'Non-Compete Clause *': {'hi': 'गैर-प्रतिस्पर्धा खंड *', 'bn': 'অপ্রতিযোগিতা ধারা *'},
+            'Employer Signature *': {'hi': 'नियोक्ता का हस्ताक्षर *', 'bn': 'নিয়োগকারীর স্বাক্ষর *'},
+            'Employee Signature *': {'hi': 'कर्मचारी का हस्ताक्षर *', 'bn': 'কর্মচারীর স্বাক্ষর *'},
+            'Date *': {'hi': 'तिथि *', 'bn': 'তারিখ *'},
+            'Create New Post': {'hi': 'नई पोस्ट बनाएं', 'bn': 'নতুন পোস্ট তৈরি করুন'},
+            'Posted by d on 14/4/2025': {'hi': 'd द्वारा 14/4/2025 को पोस्ट किया गया', 'bn': 'd দ্বারা ১৪/৪/২০২৫ তারিখে পোস্ট করা হয়েছে'},
+            'View Discussion': {'hi': 'चर्चा देखें', 'bn': 'আলোচনা দেখুন'},
+            'Understanding Employment Contracts': {'hi': 'रोजगार अनुबंध को समझना', 'bn': 'চাকরির চুক্তি বোঝা'},
+            "Hello everyone! I'm new to the legal field and would like to understand more about employment contracts. What are the key elements that should be included in a standard employment con...": {'hi': 'नमस्ते सभी! मैं कानूनी क्षेत्र में नया हूँ और रोजगार अनुबंधों के बारे में अधिक जानना चाहता हूँ। एक मानक रोजगार अनुबंध में कौन-कौन से मुख्य तत्व शामिल होने चाहिए?', 'bn': 'সবাইকে শুভেচ্ছা! আমি আইনি ক্ষেত্রে নতুন এবং চাকরির চুক্তি সম্পর্কে আরও জানতে চাই। একটি স্ট্যান্ডার্ড চাকরির চুক্তিতে কী কী মূল উপাদান থাকা উচিত?'},
+            'Tips for Filing a Legal Petition': {'hi': 'कानूनी याचिका दाखिल करने के लिए सुझाव', 'bn': 'আইনি আবেদন দাখিলের টিপস'},
+            "I've been working on filing a legal petition and wanted to share some tips I've learned: 1. Always double-check all personal information 2. Include all relevant dates a...": {'hi': 'मैं कानूनी याचिका दाखिल करने पर काम कर रहा हूँ और कुछ सुझाव साझा करना चाहता हूँ: 1. सभी व्यक्तिगत जानकारी दोबारा जांचें 2. सभी प्रासंगिक तिथियाँ शामिल करें...', 'bn': 'আমি আইনি আবেদন দাখিল করার কাজ করছি এবং কিছু টিপস শেয়ার করতে চাই: ১. সব ব্যক্তিগত তথ্য ভালোভাবে যাচাই করুন ২. সব প্রাসঙ্গিক তারিখ অন্তর্ভুক্ত করুন...'},
+            'Legal Document Templates - Best Practices': {'hi': 'कानूनी दस्तावेज़ टेम्पलेट्स - सर्वोत्तम अभ्यास', 'bn': 'আইনি ডকুমেন্ট টেমপ্লেট - সেরা অনুশীলন'},
+            "When using legal document templates, it's important to: - Review the entire document before signing - Understand each clause and its implications - Keep...": {'hi': 'कानूनी दस्तावेज़ टेम्पलेट्स का उपयोग करते समय, यह महत्वपूर्ण है: - हस्ताक्षर करने से पहले पूरे दस्तावेज़ की समीक्षा करें - प्रत्येक क्लॉज और उसके प्रभाव को समझें...', 'bn': 'আইনি ডকুমেন্ট টেমপ্লেট ব্যবহার করার সময়, গুরুত্বপূর্ণ: - স্বাক্ষর করার আগে পুরো ডকুমেন্টটি পর্যালোচনা করুন - প্রতিটি ধারা ও তার প্রভাব বুঝুন...'},
+            'Common Mistakes in Legal Forms': {'hi': 'कानूनी फॉर्म में सामान्य गलतियाँ', 'bn': 'আইনি ফর্মে সাধারণ ভুল'},
+            "I've noticed several common mistakes people make when filling out legal forms: 1. Missing signatures 2. Incomplete information 3. Using outdated forms ...": {'hi': 'मैंने देखा है कि लोग कानूनी फॉर्म भरते समय कई सामान्य गलतियाँ करते हैं: 1. हस्ताक्षर छूटना 2. अधूरी जानकारी 3. पुराने फॉर्म का उपयोग...', 'bn': 'আমি লক্ষ্য করেছি যে মানুষ আইনি ফর্ম পূরণ করার সময় কয়েকটি সাধারণ ভুল করে: ১. স্বাক্ষর বাদ পড়া ২. অসম্পূর্ণ তথ্য ৩. পুরনো ফর্ম ব্যবহার...'},
+            'Your AI-powered legal guidance': {'hi': 'आपकी एआई-संचालित कानूनी मार्गदर्शन', 'bn': 'আপনার এআই-চালিত আইনি নির্দেশিকা'},
+            'Disclaimer: This AI assistant provides general legal information, not professional advice. For complex issues, consult a qualified lawyer.': {'hi': 'अस्वीकरण: यह एआई सहायक सामान्य कानूनी जानकारी प्रदान करता है, पेशेवर सलाह नहीं। जटिल मामलों के लिए, एक योग्य वकील से परामर्श करें।', 'bn': 'দায়িত্ব অস্বীকার: এই এআই সহকারী সাধারণ আইনি তথ্য প্রদান করে, পেশাদার পরামর্শ নয়। জটিল বিষয়ে, একজন যোগ্য আইনজীবীর পরামর্শ নিন।'},
+            "Hello! I'm your Legal Lok assistant.": {'hi': 'नमस्ते! मैं आपका लीगल लोक सहायक हूँ।', 'bn': 'হ্যালো! আমি আপনার লিগ্যাল লোক সহকারী।'},
+            'I can help you with legal information about:': {'hi': 'मैं आपको इन कानूनी विषयों पर जानकारी दे सकता हूँ:', 'bn': 'আমি আপনাকে নিম্নলিখিত আইনি বিষয়ে তথ্য দিতে পারি:'},
+            'Property and real estate laws': {'hi': 'संपत्ति और रियल एस्टेट कानून', 'bn': 'সম্পত্তি ও রিয়েল এস্টেট আইন'},
+            'Family and marriage laws': {'hi': 'परिवार और विवाह कानून', 'bn': 'পরিবার ও বিবাহ আইন'},
+            'Business and employment regulations': {'hi': 'व्यापार और रोजगार नियम', 'bn': 'ব্যবসা ও কর্মসংস্থান বিধি'},
+            'Criminal and civil procedures': {'hi': 'आपराधिक और दीवानी प्रक्रिया', 'bn': 'ফৌজদারি ও দেওয়ানি প্রক্রিয়া'},
+            'Consumer rights and more': {'hi': 'उपभोक्ता अधिकार और अधिक', 'bn': 'ভোক্তা অধিকার এবং আরও অনেক কিছু'},
+            'How can I assist you today?': {'hi': 'मैं आज आपकी किस प्रकार सहायता कर सकता हूँ?', 'bn': 'আমি আজ আপনাকে কীভাবে সাহায্য করতে পারি?'},
+            'How to file for divorce in India?': {'hi': 'भारत में तलाक के लिए कैसे आवेदन करें?', 'bn': 'ভারতে কীভাবে বিবাহবিচ্ছেদের জন্য আবেদন করবেন?'},
+            'Documents needed for property registration': {'hi': 'संपत्ति पंजीकरण के लिए आवश्यक दस्तावेज़', 'bn': 'সম্পত্তি নিবন্ধনের জন্য প্রয়োজনীয় নথিপত্র'},
+            # --- NEW STRINGS FOR MOCK TRANSLATION ---
+            'Welcome to Legal Lok': {'hi': 'लीगल लोक में आपका स्वागत है', 'bn': 'লিগ্যাল লোক-এ স্বাগতম'},
+            'Your one-stop solution for all legal documentation needs. Get started by exploring templates or continuing your draft forms.': {
+                'hi': 'सभी कानूनी दस्तावेज़ आवश्यकताओं के लिए आपकी एकमात्र जगह। टेम्पलेट्स देखें या अपने ड्राफ्ट फॉर्म्स जारी रखें।',
+                'bn': 'সব আইনি ডকুমেন্টেশনের জন্য আপনার একমাত্র সমাধান। টেমপ্লেট দেখুন বা আপনার খসড়া ফর্ম চালিয়ে যান।'
+            },
+            'NDA Agreement': {'hi': 'एनडीए समझौता', 'bn': 'এনডিএ চুক্তি'},
+            'Partnership Agreement': {'hi': 'साझेदारी समझौता', 'bn': 'অংশীদারিত্ব চুক্তি'},
+            'Healthcare': {'hi': 'स्वास्थ्य सेवा', 'bn': 'স্বাস্থ্যসেবা'},
+            'Patient Intake': {'hi': 'रोगी प्रवेश', 'bn': 'রোগী ভর্তি'},
+            'Medical Release': {'hi': 'चिकित्सा रिलीज', 'bn': 'মেডিকেল রিলিজ'},
+            'Personal': {'hi': 'व्यक्तिगत', 'bn': 'ব্যক্তিগত'},
+            'Lease Agreement': {'hi': 'पट्टा समझौता', 'bn': 'লিজ চুক্তি'},
+            'Vehicle Sale': {'hi': 'वाहन बिक्री', 'bn': 'যানবাহন বিক্রয়'}
+            # ...existing code...
         }
-        # --- END MOCK TRANSLATIONS ---
+        # --- END EXTENDED MOCK TRANSLATIONS ---
 
         if fallback_only:
             print("Fallback-only request, using mock translations...")
@@ -665,6 +804,16 @@ def translate_proxy():
                 'source': source_text,
                 'target_language': target_lang
             })
+        # Pseudo-transliterate names for Hindi only if not found in mock_translations
+        elif target_lang == 'hi':
+            transliterated = pseudo_transliterate_to_hindi(source_text)
+            if transliterated != source_text:
+                return jsonify({
+                    'target': transliterated,
+                    'status': 'success (pseudo-hindi)',
+                    'source': source_text,
+                    'target_language': target_lang
+                })
         else:
             return jsonify({
                 'target': source_text,

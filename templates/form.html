@@ -426,6 +426,46 @@
             document.getElementById('translateButton').addEventListener('click', () => {
                 bhashiniTranslator.translatePage();
             });
+
+            // Real-time pseudo-translation for demo: translate on input for key fields
+            function setupRealtimeTranslationDemo() {
+                const langSelect = document.getElementById('languageSelect');
+                const fieldIds = [
+                    'employerName', 'employeeName', 'employerAddress', 'employeeAddress',
+                    'position', 'startDate', 'salary', 'benefits', 'workingHours', 'noticePeriod',
+                    'confidentialityClause', 'nonCompeteClause'
+                ];
+                fieldIds.forEach(fieldId => {
+                    const input = document.getElementById(fieldId);
+                    if (input) {
+                        input.addEventListener('input', async function(e) {
+                            if (langSelect.value === 'hi' && input.value) {
+                                // Call backend for pseudo-translation (demo only, not saved)
+                                const resp = await fetch('/api/translate', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ source: input.value, target: 'hi', fallback_only: true })
+                                });
+                                if (resp.ok) {
+                                    const data = await resp.json();
+                                    if (data.target && data.target !== input.value) {
+                                        input.value = data.target;
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+            // Wait for form to load
+            const observer = new MutationObserver(() => {
+                // Only run if at least one of the demo fields is present
+                if (document.getElementById('employerName') || document.getElementById('employeeName')) {
+                    setupRealtimeTranslationDemo();
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.getElementById('formContent'), { childList: true, subtree: true });
         });
     </script>
 </body>

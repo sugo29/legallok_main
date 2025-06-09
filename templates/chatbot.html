@@ -653,8 +653,8 @@
             </div>
             
             <div class="sidebar-item">
-                <i class="fas fa-file-pdf"></i>
-                <a href="/documents-converter"><span data-translatable>Document Converter</span></a>
+                <i class="fas fa-bell"></i>
+                <a href="#"><span data-translatable>Notifications</span></a>
             </div>
             
             <div class="sidebar-item">
@@ -762,8 +762,8 @@
             const loadingId = showLoading();
             
             try {
-                // Call the Gemini API endpoint
-                const response = await fetch('/api/chat', {
+                // Call the Azure Bot API endpoint
+                const response = await fetch('/api/azure-bot', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
