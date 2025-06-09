@@ -389,8 +389,7 @@
                         body: JSON.stringify({
                             form_id: formId,
                             form_title: formTitle,
-                            form_data: formData,
-                            template_name: formTitle  // Using form title as template name
+                            form_data: formData
                         })
                     })
                     .then(response => response.json())

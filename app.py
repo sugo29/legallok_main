@@ -372,22 +372,18 @@ def get_filled_form(form_id):
     form = FilledForm.query.get_or_404(form_id)
     if form.user_id != current_user.id:
         return jsonify({'error': 'Unauthorized'}), 403
-    
     try:
         # Parse the form data
         form_data = json.loads(form.form_data)
-        
         # Load the template and format the data
         formatted_data = format_form_data(form.form_id, form_data)
-        
         # If formatting fails, use the original data
         if not formatted_data:
             formatted_data = form_data
-        
         return jsonify({
             'id': form.id,
             'form_id': form.form_id,
-            'template_name': form.template_name,
+            'form_title': form.form_title,
             'form_data': formatted_data,
             'created_at': form.created_at.isoformat()
         })
@@ -397,9 +393,10 @@ def get_filled_form(form_id):
         return jsonify({
             'id': form.id,
             'form_id': form.form_id,
-            'template_name': form.template_name,
+            'form_title': form.form_title,
             'form_data': form.form_data,
-            'created_at': form.created_at.isoformat()
+            'created_at': form.created_at.isoformat(),
+            'error': str(e)
         })
 
 @app.route('/preview/<int:form_id>')
@@ -502,10 +499,6 @@ def direct_urls():  # Changed from direct-urls to direct_urls
 def lawyer_settings():
     return render_template('lawyer settings.html')
 
-@app.route('/settings')
-def settings():
-    return render_template('settings.html')
-
 # Route to handle form submissions
 @app.route('/api/submit-form', methods=['POST'])
 @login_required
@@ -525,8 +518,7 @@ def submit_form():
             user_id=current_user.id,
             form_id=data['form_id'],
             form_title=data['form_title'],
-            form_data=form_data_json,
-            template_name=data['template_name']
+            form_data=form_data_json
         )
         
         db.session.add(filled_form)
