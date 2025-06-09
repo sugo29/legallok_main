@@ -502,6 +502,10 @@ def direct_urls():  # Changed from direct-urls to direct_urls
 def lawyer_settings():
     return render_template('lawyer settings.html')
 
+@app.route('/settings')
+def settings():
+    return render_template('settings.html')
+
 # Route to handle form submissions
 @app.route('/api/submit-form', methods=['POST'])
 @login_required
