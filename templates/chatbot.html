@@ -384,15 +384,41 @@
             flex-shrink: 0;
         }
 
-        .send-btn:hover {
+        .mic-btn {
             background-color: var(--dark-color);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .mic-btn:hover {
+            background-color: var(--primary-color);
             transform: scale(1.05);
         }
 
-        .send-btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            transform: none;
+        .mic-btn.listening {
+            background-color: var(--danger-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
 
         .loading-dots {
@@ -653,8 +679,8 @@
             </div>
             
             <div class="sidebar-item">
-                <i class="fas fa-bell"></i>
-                <a href="#"><span data-translatable>Notifications</span></a>
+                <i class="fas fa-file-pdf"></i>
+                <a href="/documents-converter"><span data-translatable>Document Converter</span></a>
             </div>
             
             <div class="sidebar-item">
@@ -700,6 +726,9 @@
                     </div>
                 </div>
                   <div class="chat-input-container">
+                    <button class="mic-btn" id="micButton">
+                        <i class="fas fa-microphone"></i>
+                    </button>
                     <textarea class="chat-input" id="userInput" placeholder="Type your legal question here..." rows="1" data-translatable-placeholder="Type your legal question here..."></textarea>
                     <button class="send-btn" id="sendButton">
                         <i class="fas fa-paper-plane"></i>
@@ -723,7 +752,57 @@
         const chatMessages = document.getElementById('chatMessages');
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
+        const micButton = document.getElementById('micButton');
         const suggestedQuestions = document.getElementById('suggestedQuestions');
+        
+        // Speech Recognition Setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                userInput.style.height = 'auto';
+                userInput.style.height = (userInput.scrollHeight) + 'px';
+                micButton.classList.remove('listening');
+                micButton.innerHTML = '<i class="fas fa-microphone"></i>';
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                micButton.classList.remove('listening');
+                micButton.innerHTML = '<i class="fas fa-microphone"></i>';
+            };
+            
+            recognition.onend = function() {
+                micButton.classList.remove('listening');
+                micButton.innerHTML = '<i class="fas fa-microphone"></i>';
+            };
+        }
+        
+        // Microphone button click handler
+        micButton.addEventListener('click', function() {
+            if (!recognition) {
+                alert('Speech recognition is not supported in your browser. Please use Chrome or Edge.');
+                return;
+            }
+            
+            if (micButton.classList.contains('listening')) {
+                recognition.stop();
+                micButton.classList.remove('listening');
+                micButton.innerHTML = '<i class="fas fa-microphone"></i>';
+            } else {
+                recognition.start();
+                micButton.classList.add('listening');
+                micButton.innerHTML = '<i class="fas fa-stop"></i>';
+            }
+        });
         
         // Mobile menu toggle
         document.querySelector('.mobile-menu-btn')?.addEventListener('click', function() {
@@ -762,32 +841,39 @@
             const loadingId = showLoading();
             
             try {
-                // Call the Azure Bot API endpoint
+                // Call the Azure Bot endpoint
                 const response = await fetch('/api/azure-bot', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ message })
+                    body: JSON.stringify({ 
+                        message: message
+                    })
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 
                 const data = await response.json();
                 
                 // Remove loading indicator
                 removeLoading(loadingId);
                 
-                if (response.ok) {
+                if (data.response) {
                     // Add bot response to chat
                     addMessage(data.response, 'bot');
+                } else if (data.error) {
+                    throw new Error(data.error);
                 } else {
-                    // Handle error
-                    addMessage("I'm having trouble connecting to the legal database. Please try again later.", 'bot');
-                    console.error('Error:', data.error);
+                    throw new Error('No response from the server');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 removeLoading(loadingId);
-                addMessage("I'm having trouble connecting to the legal database. Please try again later.", 'bot');
+                addMessage("I apologize, but I'm having trouble connecting to the Azure Bot. Please try again later.", 'bot');
             }
         }
         
